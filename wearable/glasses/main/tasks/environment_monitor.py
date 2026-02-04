@@ -108,5 +108,16 @@ class EnvironmentMonitorTask:
             "timestamp": time.time()
         })
 
+        self.network.send({
+            "type": "ai_request",
+            "request": "analyze_storm",
+            "data": {
+                "magnitude": drop,
+                "location": self.location.get()
+                "timestamp": time.time()
+            }
+        })
+
+
     def stop(self):
         self.running = False

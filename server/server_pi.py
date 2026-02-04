@@ -5,6 +5,7 @@ from handlers.audio_handler import handle_audio
 from handlers.environment_handler import handle_environment
 from handlers.heartbeat_handler import handle_heartbeat
 from handlers.motion_handler import handle_motion
+from handlers.ai_handler import handle_ai_request
 
 app = FastAPI()
 
@@ -30,6 +31,10 @@ async def websocket_endpoint(ws: WebSocket):
 
             elif msg_type in ("step_event", "labnote_mark", "crash_alert"):
                 await handle_motion(ws, data)
+
+            elif msg_type == "ai_request":
+                await handle_ai_request(ws, data)
+
 
     except Exception as e:
         print("Pi disconnected:", e)

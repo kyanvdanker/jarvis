@@ -45,6 +45,15 @@ class NetworkService:
         except Exception as e:
             logging.error(f"Send failed: {e}")
 
+    def send_command(self, action, data=None):
+        packet = {
+            "type": "command",
+            "action": action,
+            "data": data or {}
+        }
+        self.send(packet)
+
+
     def subscribe(self, callback):
         self.listeners.append(callback)
 
