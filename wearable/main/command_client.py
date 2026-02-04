@@ -26,34 +26,44 @@ class CommandClient:
                         except Exception:
                             logging.exception("[cmd] handle error")
             except Exception as e:
-                logging.exception(f"[cmd] fail: {e}")
+                logging.exception(f"[cmd] connection failed: {e}")
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 1.8 + 0.5, 60)
 
     async def _handle_command(self, cmd: dict):
         kind = cmd.get("type")
+        logging.info(f"[cmd received] {kind}")
+
         if kind == "tts":
             text = cmd.get("text", "")
-            if text:
-                try:
-                    url = PUSHCUT_WEBHOOK + requests.utils.quote(text)
-                    r = requests.get(url, timeout=5)  # Pushcut uses GET for simple input
-                    if r.ok:
-                        logging.info(f"[TTS] Sent to phone: {text}")
-                        return
-                except Exception as e:
-                    logging.error(f"[TTS] Pushcut fail: {e}")
-                # Fallback ntfy
-                requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=text.encode(), headers={"Title": "Jarvis"})
+            if not text:
+                return
+            try:
+                url = PUSHCUT_WEBHOOK + requests.utils.quote(text)
+                r = requests.get(url, timeout=5)
+                if r.ok:
+                    logging.info(f"[TTS] sent via Pushcut: {text[:60]}...")
+                    return
+            except Exception as e:
+                logging.error(f"[TTS] Pushcut failed: {e}")
+
+            # fallback
+            requests.post(
+                f"https://ntfy.sh/{NTFY_TOPIC}",
+                data=text.encode('utf-8'),
+                headers={"Title": "Jarvis", "Priority": "default"}
+            )
+
         elif kind == "notify":
             text = cmd.get("message", "")
-            requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=text.encode(), headers={"Title": "Jarvis Alert"})
-        elif kind in ("summarize_session", "safety_alert"):
-            # Forward to phone
-            text = cmd.get("summary") or cmd.get("reason") or "Alert from Jarvis"
-            requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=text.encode(), headers={"Priority": "high", "Title": "Jarvis"})
+            requests.post(
+                f"https://ntfy.sh/{NTFY_TOPIC}",
+                data=text.encode('utf-8'),
+                headers={"Title": "Jarvis Alert"}
+            )
+
         else:
-            logging.warning(f"[cmd] unknown: {kind}")
+            logging.warning(f"[cmd] unknown type: {kind}")
 
     def start(self):
         if self._task is None or self._task.done():

@@ -3,14 +3,17 @@ import logging
 import paho.mqtt.client as mqtt
 import json
 import time
+import requests
 
-from config import MQTT_HOST, MQTT_PORT, MQTT_TOPIC
+from config import MQTT_HOST, MQTT_PORT, MQTT_TOPIC, NUDGE_URL, DEVICE_ID
 
 class ContextClient:
     def __init__(self):
-        self.latest_context = {}
-        self.client = None
-        self._stop = False
+        self.latest = {}
+        self.last_nudge_check = 0
+        self.client = mqtt.Client(client_id=f"jarvis-wearable-{DEVICE_ID}")
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
 
     def on_connect(self, client, userdata, flags, rc):
         logging.info("[context] MQTT connected")
@@ -20,36 +23,54 @@ class ContextClient:
         try:
             payload = json.loads(msg.payload.decode())
             if payload.get("_type") == "location":
-                self.latest_context = {
+                self.latest = {
                     "lat": payload.get("lat"),
                     "lon": payload.get("lon"),
                     "acc": payload.get("acc", 999),
                     "batt": payload.get("batt", -1),
                     "vel": payload.get("vel", 0),
-                    "tst": payload.get("tst", 0),
+                    "tst": payload.get("tst", time.time()),
                 }
-                logging.info(f"[context] Update: {self.latest_context}")
+                logging.debug(f"[location] {self.latest}")
         except Exception as e:
             logging.error(f"[context] parse error: {e}")
 
     def start(self):
-        self.client = mqtt.Client()
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
         self.client.connect(MQTT_HOST, MQTT_PORT, 60)
         self.client.loop_start()
 
     def stop(self):
-        self._stop = True
-        if self.client:
-            self.client.loop_stop()
-            self.client.disconnect()
+        self.client.loop_stop()
+        self.client.disconnect()
 
     def tick(self):
-        pass  # can add proactive here later if needed
+        now = time.time()
+        if now - self.last_nudge_check < 60:
+            return
+        self.last_nudge_check = now
 
-    def get_prompt_snippet(self):
-        if not self.latest_context:
-            return ""
-        c = self.latest_context
-        return f"User location approx {c['lat']:.5f}, {c['lon']:.5f} (acc {c['acc']}m), speed {c['vel']*3.6:.1f} km/h, phone batt {c['batt']}%. "
+        if not self.latest:
+            return
+
+        lat = self.latest["lat"]
+        lon = self.latest["lon"]
+        vel = self.latest["vel"]
+
+        nudge_text = None
+
+        # Example simple triggers – expand with real geo-fences or APIs later
+        if vel > 5:  # km/h
+            nudge_text = f"Moving at ~{vel*3.6:.0f} km/h near {lat:.4f}, {lon:.4f}. Need anything?"
+        elif abs(lat - 37.7749) < 0.02 and abs(lon + 122.4194) < 0.02:  # example area
+            nudge_text = "Near city center – coffee or quick stop?"
+
+        if nudge_text:
+            try:
+                requests.post(
+                    NUDGE_URL,
+                    json={"device_id": DEVICE_ID, "text": nudge_text},
+                    timeout=5
+                )
+                logging.info(f"[nudge] Sent: {nudge_text}")
+            except Exception as e:
+                logging.error(f"[nudge] failed: {e}")
