@@ -1,40 +1,58 @@
 # server/main.py
-import json
-from fastapi import FastAPI, WebSocket
-from handlers.audio_handler import handle_audio
-from handlers.environment_handler import handle_environment
-from handlers.heartbeat_handler import handle_heartbeat
-from handlers.motion_handler import handle_motion
-from handlers.ai_handler import handle_ai_request
+import logging
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from state import DeviceManager
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 
 app = FastAPI()
+devices = DeviceManager()
 
-@app.websocket("/ws")
-async def websocket_endpoint(ws: WebSocket):
-    await ws.accept()
-    print("Pi connected.")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# server/main.py (continued)
+from fastapi import WebSocket, WebSocketDisconnect, Query
+
+@app.websocket("/ws/audio")
+async def ws_audio(websocket: WebSocket, device_id: str = Query(...)):
+    await websocket.accept()
+    logging.info(f"[audio] Device {device_id} connected")
 
     try:
         while True:
-            raw = await ws.receive_text()
-            data = json.loads(raw)
-            msg_type = data.get("type")
+            data = await websocket.receive_bytes()
+            # TODO: push `data` into your ASR/LLM pipeline
+            # e.g. audio_buffer[device_id].append(data)
+    except WebSocketDisconnect:
+        logging.info(f"[audio] Device {device_id} disconnected")
+    except Exception:
+        logging.exception(f"[audio] Error for {device_id}")
 
-            if msg_type == "audio_chunk":
-                await handle_audio(ws, data)
+# server/main.py (continued)
+@app.websocket("/ws/commands")
+async def ws_commands(websocket: WebSocket, device_id: str = Query(...)):
+    await websocket.accept()
+    await devices.register_command_socket(device_id, websocket)
+    logging.info(f"[cmd] Device {device_id} connected")
 
-            elif msg_type in ("environment_data", "storm_alert"):
-                await handle_environment(ws, data)
-
-            elif msg_type == "heartbeat":
-                await handle_heartbeat(ws, data)
-
-            elif msg_type in ("step_event", "labnote_mark", "crash_alert"):
-                await handle_motion(ws, data)
-
-            elif msg_type == "ai_request":
-                await handle_ai_request(ws, data)
-
-
-    except Exception as e:
-        print("Pi disconnected:", e)
+    try:
+        while True:
+            # we don't expect messages from the device, but we must keep the socket alive
+            _ = await websocket.receive_text()
+    except WebSocketDisconnect:
+        logging.info(f"[cmd] Device {device_id} disconnected")
+    except Exception:
+        logging.exception(f"[cmd] Error for {device_id}")
+    finally:
+        await devices.unregister_command_socket(device_id)
