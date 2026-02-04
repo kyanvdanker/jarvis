@@ -1,8 +1,10 @@
 # GUI
+PyQt6
+PyQt6-WebEngine
 customtkinter
 Pillow
 
-# Audio / Wake Word / STT
+# Audio / Wake / STT
 sounddevice
 pvporcupine
 openwakeword
@@ -10,40 +12,36 @@ pyttsx3
 numpy
 keyboard
 wave
+playsound   # replaces winsound (cross-platform)
 
-# Whisper CLI (optional Python bindings)
+# Whisper (Python version, not CLI)
 openai-whisper
 
-# Machine Learning / Emotion / Speaker
+# ML / Embedding / Emotion
 torch
 torchaudio
 scikit-learn
 sentence-transformers
-python-dateutil
 
-# Vision / Camera
+# Vision
 opencv-python
-pyqt5
-pyqtgraph
 
-# CAD / Simulation / Geometry
+# CAD / 3D
 cadquery
 ezdxf
 numpy-stl
 matplotlib
-pywavelets
 
-# Project + File Management
+# Server
+fastapi
+uvicorn
+pydantic
+
+# Misc
 pyyaml
 word2number
 requests
-
-# Calendar / Planning
-python-dateutil
-
-# Ollama client
 ollama
-
-# Misc utilities
 uuid
 difflib
+python-dateutil

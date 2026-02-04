@@ -56,3 +56,36 @@ async def ws_commands(websocket: WebSocket, device_id: str = Query(...)):
         logging.exception(f"[cmd] Error for {device_id}")
     finally:
         await devices.unregister_command_socket(device_id)
+
+# server/main.py (continued)
+from pydantic import BaseModel
+
+class HeartbeatPayload(BaseModel):
+    device_id: str
+    uptime: float
+    timestamp: float
+
+@app.post("/api/heartbeat")
+async def heartbeat(payload: HeartbeatPayload):
+    logging.info(
+        f"[hb] {payload.device_id} uptime={payload.uptime:.1f}s ts={payload.timestamp}"
+    )
+    # TODO: store in DB / in-memory state if you want presence tracking
+    return JSONResponse({"status": "ok"})
+
+# server/main.py (continued)
+from fastapi import Body
+
+class TTSCommand(BaseModel):
+    device_id: str
+    url: str
+
+@app.post("/api/test/tts")
+async def test_tts(cmd: TTSCommand):
+    payload = {
+        "type": "tts",
+        "url": cmd.url,
+    }
+    await devices.send_command(cmd.device_id, payload)
+    return {"status": "sent"}
+

@@ -51,6 +51,10 @@ from calander_manager import load_wake_time
 import autonymous as auto
 import vision.camera_control
 from vision.camera_llm import camera_autonomous_check
+import playsound   # instead of winsound
+import whisper
+
+last_remote_output = None   # global for remote mode
 
 logging.basicConfig(filename='jarvis_errors.log', level=logging.INFO)
 
@@ -79,6 +83,8 @@ MAX_HISTORY = 10   # last 6 exchanges (user + assistant)
 
 interrupt_requested = threading.Event()
 last_command = ""
+
+whisper_model = whisper.load_model("base.en")   # load once at top
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
@@ -403,21 +409,18 @@ def run_wake_sequence():
     clear_wake_time()
 
 def play_alarm_sound(duration=30):
-    import winsound
-    end = time.time() + duration
-    while time.time() < end:
-        winsound.Beep(1000, 500)  # 1000 Hz, 0.5 sec
+    import time
+    for _ in range(duration * 2):           # rough beep
+        playsound.playsound("C:/Windows/Media/Alarm01.wav", block=False)  # or any wav
+        time.sleep(0.5)
 
 def transcribe(audio_file):
     try:
-        cmd = [WHISPER_EXE, "-m", MODEL_PATH, "-f", audio_file, "--no-timestamps"]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)  # Add timeout to prevent hangs
-        if result.returncode != 0:
-            raise ValueError(f"Whisper failed with code {result.returncode}: {result.stderr}")
-        return result.stdout.strip()
+        result = whisper_model.transcribe(audio_file, fp16=False)
+        return result["text"].strip()
     except Exception as e:
-        logging.error(f"Transcription error: {e}")
-        return None  # Return None on failure
+        logging.error(f"Whisper error: {e}")
+        return "Sorry, I couldn't understand that."
 
 def main():
     print("Push-to-talk STT ready.")
