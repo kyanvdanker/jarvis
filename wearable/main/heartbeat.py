@@ -1,32 +1,30 @@
-# wearable/heartbeat.py
 import time
 import logging
 import requests
+import random
 
 from config import HEARTBEAT_URL, DEVICE_ID
 
 class Heartbeat:
-    def __init__(self, interval=10):
+    def __init__(self, interval=60):
         self.interval = interval
         self._last = 0
         self._start = time.time()
 
     def tick(self):
         now = time.time()
-        if now - self._last < self.interval:
+        if now - self._last < self.interval + random.uniform(0, 10):
             return
-
         self._last = now
         payload = {
             "device_id": DEVICE_ID,
-            "uptime": now - self._start,
-            "timestamp": now,
-            # later: "cpu_temp": ..., "wifi_rssi": ...
+            "uptime": int(now - self._start),
+            "timestamp": int(now),
         }
-
         try:
-            r = requests.post(HEARTBEAT_URL, json=payload, timeout=3)
-            if r.status_code != 200:
-                logging.warning(f"[hb] Non-200: {r.status_code}")
-        except Exception:
-            logging.exception("[hb] Failed")
+            requests.post(HEARTBEAT_URL, json=payload, timeout=4)
+        except Exception as e:
+            logging.warning(f"[hb] fail: {e}")
+
+    def stop(self):
+        pass  # nothing needed
