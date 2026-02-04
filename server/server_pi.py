@@ -1,11 +1,18 @@
-# server_pi.py  (or rename to main.py if preferred)
+# server_pi.py
 import logging
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, Request, Body
+import json
+import os
+import time
+from typing import Dict
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
-from typing import Dict
+from ollama_client import ask_ollama  # or your AI function
+
+# Ollama integration - adjust import/path to match your actual ollama_client.py
+ollama = ask_ollama()  # or ollama = Ollama(model="llama3.1") etc.
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,72 +28,75 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Simple in-memory device manager (replace with Redis/DB later)
+# In-memory device management
 class DeviceManager:
     def __init__(self):
         self.command_sockets: Dict[str, WebSocket] = {}
 
     async def register_command_socket(self, device_id: str, ws: WebSocket):
         self.command_sockets[device_id] = ws
+        logging.info(f"Registered command socket for {device_id}")
 
     async def unregister_command_socket(self, device_id: str):
         self.command_sockets.pop(device_id, None)
+        logging.info(f"Unregistered command socket for {device_id}")
 
     async def send_command(self, device_id: str, payload: dict):
         ws = self.command_sockets.get(device_id)
         if ws:
             try:
                 await ws.send_json(payload)
-                logging.info(f"[cmd sent] to {device_id}: {payload.get('type')}")
+                logging.info(f"Sent {payload.get('type')} to {device_id}")
             except Exception as e:
-                logging.error(f"[cmd send fail] {device_id}: {e}")
+                logging.error(f"Failed to send to {device_id}: {e}")
                 await self.unregister_command_socket(device_id)
         else:
-            logging.warning(f"[cmd] {device_id} not connected")
+            logging.warning(f"Device {device_id} not connected for command")
 
 devices = DeviceManager()
 
-# Global flags (later move to DB or per-device state)
-translation_enabled: Dict[str, bool] = {}  # per device
+# File for saving summaries
+SUMMARY_FILE = "conversation_summaries.json"
 
 # ────────────────────────────────────────────────
-# Audio WebSocket – receives raw audio chunks
+# Audio WebSocket – receives raw audio from Pi
 # ────────────────────────────────────────────────
 @app.websocket("/ws/audio")
 async def ws_audio(websocket: WebSocket, device_id: str = Query(...)):
     await websocket.accept()
     logging.info(f"[audio] Device {device_id} connected")
 
+    # Optional: buffer audio here for later transcription
+    # audio_buffer = []  # list of bytes
+
     try:
         while True:
             data = await websocket.receive_bytes()
-            # TODO: Here you process audio:
-            # - feed to whisper / faster-whisper
-            # - detect speech → send to LLM
-            # - if translation_enabled.get(device_id, False): translate
-            logging.debug(f"[audio chunk] {len(data)} bytes from {device_id}")
+            # audio_buffer.append(data)  # accumulate for whisper
+            # For now just log
+            logging.debug(f"[audio] {len(data)} bytes from {device_id}")
     except WebSocketDisconnect:
         logging.info(f"[audio] Device {device_id} disconnected")
-    except Exception:
+    except Exception as e:
         logging.exception(f"[audio] Error for {device_id}")
 
 # ────────────────────────────────────────────────
-# Commands WebSocket – server pushes to device
+# Commands WebSocket – server pushes TTS/notify to Pi
 # ────────────────────────────────────────────────
 @app.websocket("/ws/commands")
 async def ws_commands(websocket: WebSocket, device_id: str = Query(...)):
     await websocket.accept()
     await devices.register_command_socket(device_id, websocket)
-    logging.info(f"[cmd] Device {device_id} connected")
+    logging.info(f"[commands] Device {device_id} connected")
 
     try:
-        # Keep alive – client doesn't send much
         while True:
-            await websocket.receive_text()  # or .receive() if binary
+            # Keep connection alive (client rarely sends data)
+            await websocket.receive_text()
     except WebSocketDisconnect:
-        logging.info(f"[cmd] Device {device_id} disconnected")
-    except Exception:
-        logging.exception(f"[cmd] Error for {device_id}")
+        logging.info(f"[commands] Device {device_id} disconnected")
+    except Exception as e:
+        logging.exception(f"[commands] Error for {device_id}")
     finally:
         await devices.unregister_command_socket(device_id)
 
@@ -100,51 +110,146 @@ class HeartbeatPayload(BaseModel):
 
 @app.post("/api/heartbeat")
 async def heartbeat(payload: HeartbeatPayload):
-    logging.info(f"[hb] {payload.device_id} uptime={payload.uptime:.1f}s ts={payload.timestamp}")
-    # Could update last_seen timestamp here
+    logging.info(f"[heartbeat] {payload.device_id} uptime={payload.uptime:.1f}s")
     return {"status": "ok"}
 
 # ────────────────────────────────────────────────
-# Control endpoint – called from phone Shortcuts
+# Summarize session – called by Pi after silence
 # ────────────────────────────────────────────────
-@app.get("/control")  # or POST if you prefer body
+class SummaryRequest(BaseModel):
+    device_id: str
+    duration: float = 0.0
+    start_time: float = 0.0
+
+@app.post("/summarize_session")
+async def summarize_session(req: SummaryRequest):
+    device_id = req.device_id
+
+    # Placeholder transcript – replace with real whisper processing
+    # In production: use audio_buffer[device_id], run whisper, get text
+    transcript = (
+        "User: We need to finish the CAD integration by Friday. "
+        "Response: Yes, let's prioritize that and test on the Pi."
+    )
+
+    prompt = f"""
+You are Jarvis, a concise and helpful assistant.
+Summarize this conversation in 3–6 bullet points.
+Include:
+- Main topics
+- Key decisions
+- Action items / follow-ups
+- Any names, dates, or important details
+
+Transcript:
+{transcript}
+
+Summary (bullet points):
+"""
+
+    try:
+        response = ollama.chat(
+            model="llama3.1",  # or your model
+            messages=[{"role": "user", "content": prompt}],
+            options={"temperature": 0.3}
+        )
+        summary_text = response['message']['content'].strip()
+    except Exception as e:
+        logging.error(f"Ollama failed: {e}")
+        summary_text = "Could not generate summary at this time."
+
+    # Save summary
+    entry = {
+        "timestamp": time.time(),
+        "device_id": device_id,
+        "duration_seconds": req.duration,
+        "start_time": req.start_time,
+        "transcript": transcript,
+        "summary": summary_text
+    }
+
+    summaries = []
+    if os.path.exists(SUMMARY_FILE):
+        with open(SUMMARY_FILE, "r") as f:
+            summaries = json.load(f)
+    summaries.append(entry)
+    with open(SUMMARY_FILE, "w") as f:
+        json.dump(summaries, f, indent=2)
+
+    logging.info(f"Saved summary for {device_id}: {summary_text[:80]}...")
+
+    # Send to phone via Pi
+    await devices.send_command(device_id, {
+        "type": "tts",
+        "text": f"Conversation summary: {summary_text}"
+    })
+
+    return {"status": "summary generated and saved"}
+
+# ────────────────────────────────────────────────
+# Proactive nudge – called by Pi when location triggers
+# ────────────────────────────────────────────────
+class NudgeRequest(BaseModel):
+    device_id: str
+    text: str
+
+@app.post("/proactive_nudge")
+async def proactive_nudge(req: NudgeRequest):
+    device_id = req.device_id
+    original_text = req.text
+
+    prompt = f"""
+You are Jarvis. Make this location-based reminder natural, short,
+and helpful. Max 20 words.
+
+Original: {original_text}
+
+Refined:
+"""
+
+    try:
+        response = ollama.chat(
+            model="llama3.1",
+            messages=[{"role": "user", "content": prompt}],
+            options={"temperature": 0.4}
+        )
+        refined_text = response['message']['content'].strip()
+    except:
+        refined_text = original_text
+
+    await devices.send_command(device_id, {
+        "type": "tts",
+        "text": refined_text
+    })
+
+    return {"status": "nudge sent"}
+
+# ────────────────────────────────────────────────
+# Phone control endpoint (for Shortcuts)
+# ────────────────────────────────────────────────
+@app.get("/control")
 async def control_pi(
     action: str = Query(...),
     value: str = Query(None),
-    device_id: str = Query("kyan-glasses-01")  # default or require
+    device_id: str = Query("kyan-glasses-01")
 ):
     if action == "mute":
-        state = value.lower() in ("on", "true", "1")
+        state = value.lower() in ("on", "true", "1", "yes")
         await devices.send_command(device_id, {"type": "mute", "state": state})
         return {"status": "sent", "action": "mute", "state": state}
 
     elif action == "toggle_translation":
-        enabled = value.lower() in ("on", "true", "1") if value else True
-        translation_enabled[device_id] = enabled
-        msg = f"Translation {'enabled' if enabled else 'disabled'}"
-        await devices.send_command(device_id, {"type": "notify", "message": msg})
-        return {"status": "sent", "action": "translation", "enabled": enabled}
+        enabled = value.lower() in ("on", "true", "1", "yes") if value else True
+        # You can store this globally or per-device
+        await devices.send_command(device_id, {
+            "type": "notify",
+            "message": f"Translation {'enabled' if enabled else 'disabled'}"
+        })
+        return {"status": "sent", "translation": enabled}
 
-    elif action == "status":
-        connected = device_id in devices.command_sockets
-        return {"connected": connected, "translation": translation_enabled.get(device_id, False)}
+    return JSONResponse({"error": "Unknown action"}, status_code=400)
 
-    return JSONResponse({"error": "unknown action"}, status_code=400)
-
-# ────────────────────────────────────────────────
-# Test TTS push
-# ────────────────────────────────────────────────
-class TTSCommand(BaseModel):
-    device_id: str
-    text: str
-
-@app.post("/api/test/tts")
-async def test_tts(cmd: TTSCommand):
-    payload = {"type": "tts", "text": cmd.text}
-    await devices.send_command(cmd.device_id, payload)
-    return {"status": "sent"}
-
-# Optional: health check
+# Health check
 @app.get("/health")
 async def health():
-    return {"status": "ok", "devices_connected": len(devices.command_sockets)}
+    return {"status": "ok", "connected_devices": len(devices.command_sockets)}
