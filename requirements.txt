@@ -1,0 +1,49 @@
+# GUI
+customtkinter
+Pillow
+
+# Audio / Wake Word / STT
+sounddevice
+pvporcupine
+openwakeword
+pyttsx3
+numpy
+keyboard
+wave
+
+# Whisper CLI (optional Python bindings)
+openai-whisper
+
+# Machine Learning / Emotion / Speaker
+torch
+torchaudio
+scikit-learn
+sentence-transformers
+python-dateutil
+
+# Vision / Camera
+opencv-python
+pyqt5
+pyqtgraph
+
+# CAD / Simulation / Geometry
+cadquery
+ezdxf
+numpy-stl
+matplotlib
+pywavelets
+
+# Project + File Management
+pyyaml
+word2number
+requests
+
+# Calendar / Planning
+python-dateutil
+
+# Ollama client
+ollama
+
+# Misc utilities
+uuid
+difflib

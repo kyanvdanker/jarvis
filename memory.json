@@ -1,0 +1,260 @@
+{
+  "user_profile": {
+    "name": "Kyan"
+  },
+  "emotion": {
+    "baseline": "neutral",
+    "history": []
+  },
+  "habits": {
+    "intents": [
+      {
+        "intent": "check_train",
+        "time": "2026-01-19T20:23:08.269416"
+      },
+      {
+        "intent": "check_train",
+        "time": "2026-01-19T20:23:08.271414"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:29:58.119721"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:29:58.120734"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:30:31.179596"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:30:31.182111"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:33:11.619803"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:33:11.620803"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:35:55.955753"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T21:35:55.957937"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:53:16.936193"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:53:16.938195"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:54:49.000282"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:54:49.003282"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:56:10.381295"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:56:10.383296"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:58:47.307854"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-19T21:58:47.311396"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T22:00:11.088614"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T22:00:11.090615"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T22:00:44.435624"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-19T22:00:44.438618"
+      },
+      {
+        "intent": "briefing",
+        "time": "2026-01-20T10:34:27.062229"
+      },
+      {
+        "intent": "briefing",
+        "time": "2026-01-20T10:34:27.064652"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-20T10:35:36.692228"
+      },
+      {
+        "intent": "switch_project",
+        "time": "2026-01-20T10:35:36.695228"
+      },
+      {
+        "intent": "planning_start",
+        "time": "2026-01-20T20:51:43.232936"
+      },
+      {
+        "intent": "planning_start",
+        "time": "2026-01-20T20:51:43.235942"
+      },
+      {
+        "intent": "cad_modify",
+        "time": "2026-01-20T21:15:36.877071"
+      },
+      {
+        "intent": "cad_modify",
+        "time": "2026-01-20T21:15:36.880072"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-20T21:16:35.965777"
+      },
+      {
+        "intent": "whatsapp_start",
+        "time": "2026-01-20T21:16:35.967797"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:40:45.947481"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:40:45.950480"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:42:43.636705"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:42:43.640222"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:52:33.028680"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T21:52:33.031680"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T22:34:27.838469"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-21T22:34:27.840469"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T21:44:52.776749"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T21:44:52.779750"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T21:49:57.177225"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T21:49:57.179714"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:14:53.448447"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:14:53.452065"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:18:37.335752"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:18:37.337757"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:24:46.382000"
+      },
+      {
+        "intent": "wake_start",
+        "time": "2026-01-22T22:24:46.384000"
+      }
+    ]
+  },
+  "health": {
+    "stress_score": 0.0,
+    "fatigue_score": 0.0
+  },
+  "routine": {
+    "check_train": [
+      {
+        "hour": 20,
+        "minute": 23,
+        "time": "2026-01-19T20:23:08.273945"
+      }
+    ],
+    "send_text": [
+      {
+        "hour": 21,
+        "minute": 53,
+        "time": "2026-01-19T21:53:16.940196"
+      },
+      {
+        "hour": 21,
+        "minute": 54,
+        "time": "2026-01-19T21:54:49.005610"
+      },
+      {
+        "hour": 21,
+        "minute": 56,
+        "time": "2026-01-19T21:56:10.385296"
+      },
+      {
+        "hour": 21,
+        "minute": 58,
+        "time": "2026-01-19T21:58:47.312643"
+      },
+      {
+        "hour": 21,
+        "minute": 16,
+        "time": "2026-01-20T21:16:35.969795"
+      }
+    ],
+    "start_planning": [
+      {
+        "hour": 20,
+        "minute": 51,
+        "time": "2026-01-20T20:51:43.238936"
+      }
+    ]
+  }
+}
