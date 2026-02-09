@@ -1,0 +1,246 @@
+text,intent
+create a new project called rocket,create_project
+make a project named test,create_project
+start a project called avionics,create_project
+create project demo,create_project
+begin a new project called nozzle test,create_project
+
+switch to the rocket project,switch_project
+change project to test,switch_project
+open the avionics project,switch_project
+switch project demo,switch_project
+go to my nozzle test project,switch_project
+switch project rocket candy,switch_project
+switch project,switch_project
+which project,switch_project
+
+list my projects,list_projects
+show all projects,list_projects
+what projects do i have,list_projects
+list projects,list_projects
+list project,list_projects
+
+add note this is important,add_note
+add note remember to test the nozzle,add_note
+make a memo that the printer is clogged,add_note
+add note calibrate the camera,add_note
+add note,add_note
+
+read my notes,read_notes
+show my notes,read_notes
+read notes,read_notes
+what notes do i have,read_notes
+read notes,read_notes
+
+rotate left,view
+rotate right,view
+rotate up,view
+rotate down,view
+zoom in,view
+zoom out,view
+reset view,view
+reset camera,view
+
+make a nozzle,cad_start
+create a nozzle,cad_start
+create nozzle,cad_start
+design a nozzle,cad_start
+build a motor casing,cad_start
+create a motor casing,cad_start
+make a body tube,cad_start
+design a nose cone,cad_start
+create a fin canister,cad_start
+
+what is a nozzle,question
+tell me about rockets,question
+how does a motor casing work,question
+what is the purpose of a nose cone,question
+explain rocket fins,question
+why do rockets need bulkheads,question
+
+set a reminder,reminder_start
+i need a reminder,reminder_start
+remind me about something,reminder_start
+can you set a reminder,reminder_start
+shit reminder,reminder_start
+shits reminder,reminder_start
+
+remind me in 10 minutes,reminder
+remind me at 3:30,reminder
+in 5 minutes remind me to check the printer,reminder
+at 14:00 remind me to switch projects,reminder
+remind me of it,reminder
+
+print the nozzle,print
+print motor casing,print
+print the last part,print
+print the body tube,print
+
+what's happening today,agenda_today
+what is happening today,agenda_today
+what's my schedule today,agenda_today
+give me today's agenda,agenda_today
+
+good morning,briefing
+give me my daily briefing,briefing
+what's my day look like,briefing
+start my morning briefing,briefing
+briefing,briefing
+
+plan project rocket,planning_start
+start planning a new project,planning_start
+help me plan a project,planning_start
+i want to plan something,planning_start
+
+make it longer,cad_modify
+make the nozzle longer,cad_modify
+make the motor casing longer,cad_modify
+increase the throat radius by 2,cad_modify
+increase the expansion ratio,cad_modify
+increase the diameter,cad_modify
+increase the height,cad_modify
+increase the length,cad_modify
+make it bigger,cad_modify
+make it smaller,cad_modify
+decrease the wall thickness,cad_modify
+decrease the diameter,cad_modify
+decrease the length,cad_modify
+set the throat radius to 5,cad_modify
+set the expansion ratio to 6,cad_modify
+set the diameter to 30,cad_modify
+modify the last part,cad_modify
+change the last part,cad_modify
+adjust the nozzle,cad_modify
+adjust the motor casing,cad_modify
+
+simulate a motor,simulate_motor
+run a motor simulation,simulate_motor
+simulate a nozzle,simulate_motor
+calculate thrust,simulate_motor
+compute nozzle performance,simulate_motor
+simulate rocket motor,simulate_motor
+simulate motor,simulate_motor
+simulate a rocket,simulate_motor
+create motor,simulate_motor
+
+open cad viewer,open_cad_viewer
+show cad viewer,open_cad_viewer
+close cad viewer,close_cad_viewer
+exit cad viewer,close_cad_viewer
+
+send a whatsapp message,whatsapp_start
+message mom on whatsapp,whatsapp_start
+send a message to john,whatsapp_start
+text sarah,whatsapp_start
+send a whatsapp to rocket team,whatsapp_start
+
+call mom,call_start
+call john,call_start
+call sarah,call_start
+place a call,call_start
+i want to call someone,call_start
+
+who am i talking to,speaker_check
+is this my voice,speaker_check
+verify my voice,speaker_check
+is this me,speaker_check
+
+how am i sounding,emotion_query
+do i sound angry,emotion_query
+do i sound tired,emotion_query
+how is my emotion,emotion_query
+
+continue my last task,continue_last
+continue what i was doing,continue_last
+resume my previous task,continue_last
+keep going,continue_last
+
+im back,ambient_return
+i returned,ambient_return
+im here again,ambient_return
+
+im leaving,ambient_leave
+im going away,ambient_leave
+ill be back,ambient_leave
+
+is my train delayed,check_train
+check my train,check_train
+is the train to eindhoven delayed,check_train
+
+security level,start_security
+switch security level,start security
+i want to plan something,planning_start
+wake me at,wake_start
+send a text,whatsapp_start
+
+wake me at 7,wake_start
+wake me at 6,wake_start
+wake me at 6:30,wake_start
+wake me at 05:00,wake_start
+wake me up at 7,wake_start
+wake me tomorrow at 7,wake_start
+wake me,wake_start
+
+create a new project,create_project
+start a new project,create_project
+make a project,create_project
+new project,create_project
+
+switch project,switch_project
+change project,switch_project
+open project,switch_project
+load project,switch_project
+
+add note,add_note
+write this down,add_note
+note this,add_note
+remember this,add_note
+
+list projects,list_projects
+show projects,list_projects
+what projects do i have,list_projects
+
+read notes,read_notes
+show notes,read_notes
+open notes,read_notes
+
+add requirement,add_requirement
+new requirement,add_requirement
+this is a requirement,add_requirement
+
+list requirements,list_requirements
+show requirements,list_requirements
+
+add material,add_material
+material used,add_material
+we will use,add_material
+
+list materials,list_materials
+show materials,list_materials
+
+add decision,add_decision
+design decision,add_decision
+record decision,add_decision
+
+list decisions,list_decisions
+show decisions,list_decisions
+wait me at 7,wake_start
+
+remember,remember
+remember this,remember
+remember this word,remember
+remember this dimensions,remember
+
+what was it,recall
+recall,recall
+what asked i to remember,recall
+
+show dimensions,show_dimensions
+show the dimensions,show_dimensions
+dimensions,show_dimensions
+what are the dimensions,show_dimensions
+
+show sketch,show_sketch
+sketch,show_sketch
+show the sketch,show_sketch
+what is the sketch,show_sketch
